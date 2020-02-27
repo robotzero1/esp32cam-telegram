@@ -123,7 +123,7 @@ uint8_t photoNextByte() {
   return (fb_buffer[currentByte - 1]);
 }
 
-void take_send_photo(String chat_id, String message)
+void take_send_photo(String chat_id)
 {
   camera_fb_t * fb = NULL;
   fb = esp_camera_fb_get();
@@ -146,7 +146,7 @@ void loop() {
 
       for (int i = 0; i < numNewMessages; i++) {
         //bot.sendMessage(bot.messages[i].chat_id, bot.messages[i].text, "");
-        take_send_photo(chat_id, bot.messages[i].text);
+        take_send_photo(chat_id);
       }
       numNewMessages = bot.getUpdates(bot.last_message_received + 1);
     }
