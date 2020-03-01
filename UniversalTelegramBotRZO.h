@@ -1,22 +1,22 @@
 /*
-Copyright (c) 2018 Brian Lough. All right reserved.
+  Copyright (c) 2018 Brian Lough. All right reserved.
 
-UniversalTelegramBot - Library to create your own Telegram Bot using
-ESP8266 or ESP32 on Arduino IDE.
+  UniversalTelegramBot - Library to create your own Telegram Bot using
+  ESP8266 or ESP32 on Arduino IDE.
 
-This library is free software; you can redistribute it and/or
-modify it under the terms of the GNU Lesser General Public
-License as published by the Free Software Foundation; either
-version 2.1 of the License, or (at your option) any later version.
+  This library is free software; you can redistribute it and/or
+  modify it under the terms of the GNU Lesser General Public
+  License as published by the Free Software Foundation; either
+  version 2.1 of the License, or (at your option) any later version.
 
-This library is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-Lesser General Public License for more details.
+  This library is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+  Lesser General Public License for more details.
 
-You should have received a copy of the GNU Lesser General Public
-License along with this library; if not, write to the Free Software
-Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
+  You should have received a copy of the GNU Lesser General Public
+  License along with this library; if not, write to the Free Software
+  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 */
 
 #ifndef UniversalTelegramBotRZO_h
@@ -27,14 +27,14 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 #include <Arduino.h>
 #include <ArduinoJson.h>
 #include <Client.h>
-#include <core_version.h> 
+#include <core_version.h>
 
 #define HOST "api.telegram.org"
 #define SSL_PORT 443
 #define HANDLE_MESSAGES 1
 
 //unmark following line to enable debug mode
-//#define _debug
+#define _debug
 
 typedef bool (*MoreDataAvailable)();
 typedef byte (*GetNextByte)();
@@ -42,6 +42,14 @@ typedef byte* (*GetNextBuffer)();
 typedef int (GetNextBufferLen)();
 
 struct telegramMessage {
+  String inline_query;
+  String inline_query_id;
+  String sticker_id;
+  String sticker_uid;
+  int sticker_width;
+  int sticker_height;
+  bool sticker_animated;
+
   String text;
   String chat_id;
   String chat_title;
@@ -55,59 +63,59 @@ struct telegramMessage {
 };
 
 class UniversalTelegramBot {
-public:
-  UniversalTelegramBot(String token, Client &client);
-  String sendGetToTelegram(String command);
-  String sendPostToTelegram(String command, JsonObject payload);
-  String
-  sendMultipartFormDataToTelegram(String command, String binaryProperyName,
-                                  String fileName, String contentType,
-                                  String chat_id, int fileSize,
-                                  MoreDataAvailable moreDataAvailableCallback,
-                                  GetNextByte getNextByteCallback, 
-								  GetNextBuffer getNextBufferCallback, 
-								  GetNextBufferLen getNextBufferLenCallback);
+  public:
+    UniversalTelegramBot(String token, Client &client);
+    String sendGetToTelegram(String command);
+    String sendPostToTelegram(String command, JsonObject payload);
+    String
+    sendMultipartFormDataToTelegram(String command, String binaryProperyName,
+                                    String fileName, String contentType,
+                                    String chat_id, int fileSize,
+                                    MoreDataAvailable moreDataAvailableCallback,
+                                    GetNextByte getNextByteCallback,
+                                    GetNextBuffer getNextBufferCallback,
+                                    GetNextBufferLen getNextBufferLenCallback);
 
-  bool getMe();
+    bool getMe();
 
-  bool sendSimpleMessage(String chat_id, String text, String parse_mode);
-  bool sendMessage(String chat_id, String text, String parse_mode = "");
-  bool sendMessageWithReplyKeyboard(String chat_id, String text,
-                                    String parse_mode, String keyboard,
-                                    bool resize = false, bool oneTime = false,
-                                    bool selective = false);
-  bool sendMessageWithInlineKeyboard(String chat_id, String text,
-                                     String parse_mode, String keyboard);
+    bool sendSimpleMessage(String chat_id, String text, String parse_mode);
+    bool sendMessage(String chat_id, String text, String parse_mode = "");
+    bool sendMessageWithReplyKeyboard(String chat_id, String text,
+                                      String parse_mode, String keyboard,
+                                      bool resize = false, bool oneTime = false,
+                                      bool selective = false);
+    bool sendMessageWithInlineKeyboard(String chat_id, String text,
+                                       String parse_mode, String keyboard);
 
-  bool sendChatAction(String chat_id, String text);
+    bool sendChatAction(String chat_id, String text);
 
-  bool sendPostMessage(JsonObject payload);
-  String sendPostPhoto(JsonObject payload);
-  String sendPhotoByBinary(String chat_id, String contentType, int fileSize,
-                           MoreDataAvailable moreDataAvailableCallback,
-                           GetNextByte getNextByteCallback, 
-						   GetNextBuffer getNextBufferCallback, 
-						   GetNextBufferLen getNextBufferLenCallback);
-  String sendPhoto(String chat_id, String photo, String caption = "",
-                   bool disable_notification = false,
-                   int reply_to_message_id = 0, String keyboard = "");
+    bool sendPostMessage(JsonObject payload);
+    String sendPostPhoto(JsonObject payload);
+    String sendPhotoByBinary(String chat_id, String contentType, int fileSize,
+                             MoreDataAvailable moreDataAvailableCallback,
+                             GetNextByte getNextByteCallback,
+                             GetNextBuffer getNextBufferCallback,
+                             GetNextBufferLen getNextBufferLenCallback);
+    String sendPhoto(String chat_id, String photo, String caption = "",
+                     bool disable_notification = false,
+                     int reply_to_message_id = 0, String keyboard = "");
 
-  int getUpdates(long offset);
-  bool checkForOkResponse(String response);
-  telegramMessage messages[HANDLE_MESSAGES];
-  long last_message_received;
-  String name;
-  String userName;
-  int longPoll = 0;
-  int waitForResponse = 1500;
+    int getUpdates(long offset);
+    bool checkForOkResponse(String response);
+    telegramMessage messages[HANDLE_MESSAGES];
+    long last_message_received;
+    String name;
+    String userName;
+    int longPoll = 0;
+    int waitForResponse = 1500;
 
-private:
-  // JsonObject * parseUpdates(String response);
-  String _token;
-  Client *client;
-  void closeClient();
-  const int maxMessageLength = 1500;
-  bool processResult(JsonObject result, int messageIndex);
+  private:
+    // JsonObject * parseUpdates(String response);
+    String _token;
+    Client *client;
+    void closeClient();
+    const int maxMessageLength = 1500;
+    bool processResult(JsonObject result, int messageIndex);
 };
 
 #endif
