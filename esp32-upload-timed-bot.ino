@@ -18,9 +18,11 @@ char password[] = "orange"; // your network key
 
 String chat_id;
 long photo_sent;
+String last_chat_id;
+long millsecs_delay;
 
 // Initialize Telegram BOT
-#define BOTtoken "1010101010"  // your Bot Token (Get from Botfather)
+#define BOTtoken "10101010101010"  // your Bot Token (Get from Botfather)
 String token = BOTtoken;
 
 WiFiClientSecure client;
@@ -34,44 +36,24 @@ uint8_t* fb_buffer;
 size_t fb_length;
 int currentByte;
 
-// (esp-eye defines)
-#define PWDN_GPIO_NUM    -1
-#define RESET_GPIO_NUM   -1
-#define XCLK_GPIO_NUM    4
-#define SIOD_GPIO_NUM    18
-#define SIOC_GPIO_NUM    23
-
-#define Y9_GPIO_NUM      36
-#define Y8_GPIO_NUM      37
-#define Y7_GPIO_NUM      38
-#define Y6_GPIO_NUM      39
-#define Y5_GPIO_NUM      35
-#define Y4_GPIO_NUM      14
-#define Y3_GPIO_NUM      13
-#define Y2_GPIO_NUM      34
-#define VSYNC_GPIO_NUM   5
-#define HREF_GPIO_NUM    27
-#define PCLK_GPIO_NUM    25
-
-
 // (Ai- Thinker defines)
-//#define PWDN_GPIO_NUM     32
-//#define RESET_GPIO_NUM    -1
-//#define XCLK_GPIO_NUM      0
-//#define SIOD_GPIO_NUM     26
-//#define SIOC_GPIO_NUM     27
-//
-//#define Y9_GPIO_NUM       35
-//#define Y8_GPIO_NUM       34
-//#define Y7_GPIO_NUM       39
-//#define Y6_GPIO_NUM       36
-//#define Y5_GPIO_NUM       21
-//#define Y4_GPIO_NUM       19
-//#define Y3_GPIO_NUM       18
-//#define Y2_GPIO_NUM        5
-//#define VSYNC_GPIO_NUM    25
-//#define HREF_GPIO_NUM     23
-//#define PCLK_GPIO_NUM     22
+#define PWDN_GPIO_NUM     32
+#define RESET_GPIO_NUM    -1
+#define XCLK_GPIO_NUM      0
+#define SIOD_GPIO_NUM     26
+#define SIOC_GPIO_NUM     27
+
+#define Y9_GPIO_NUM       35
+#define Y8_GPIO_NUM       34
+#define Y7_GPIO_NUM       39
+#define Y6_GPIO_NUM       36
+#define Y5_GPIO_NUM       21
+#define Y4_GPIO_NUM       19
+#define Y3_GPIO_NUM       18
+#define Y2_GPIO_NUM        5
+#define VSYNC_GPIO_NUM    25
+#define HREF_GPIO_NUM     23
+#define PCLK_GPIO_NUM     22
 
 
 
@@ -143,7 +125,16 @@ void setup()
   Serial.println(WiFi.localIP());
 }
 
-void take_send_photo(String chat_id, String message, String inline_query_id)
+bool isMoreDataAvailable() {
+  return (fb_length - currentByte);
+}
+
+uint8_t photoNextByte() {
+  currentByte++;
+  return (fb_buffer[currentByte - 1]);
+}
+
+void take_send_photo(String chat_id)
 {
   camera_fb_t * fb = NULL;
   fb = esp_camera_fb_get();
@@ -172,19 +163,18 @@ void loop() {
         if (bot.messages[i].type == "inline_query") {
           //
         } else {
-          delay_command = (bot.messages[i].text); // message sent to bot like /5 for 5 minutes
+          String delay_command = (bot.messages[i].text); // message sent to bot ie /5 for 5 minutes
           delay_command.remove(0, 1); // remove /
           last_chat_id = bot.messages[i].chat_id;
           bot.sendMessage(last_chat_id, "Sending a photo every " + delay_command + " minutes", "");
-          delay_command.toInt();
-          millsecs_delay = delay_command * 60 * 1000;
+          millsecs_delay = delay_command.toInt() * 60 * 1000;
         }
 
       }
       numNewMessages = bot.getUpdates(bot.last_message_received + 1);
     }
     if (millis() > photo_sent + millsecs_delay) {
-      take_send_photo(last_chat_id, bot.messages[i].text, "");
+      take_send_photo(last_chat_id);
       photo_sent = millis();
     }
 
