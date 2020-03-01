@@ -59,10 +59,6 @@ void setup()
 {
   Serial.begin(115200);
 
-  //comment out for Ai-thinker
-  pinMode(13, INPUT_PULLUP);
-  pinMode(14, INPUT_PULLUP);
-
   camera_config_t config;
   config.ledc_channel = LEDC_CHANNEL_0;
   config.ledc_timer = LEDC_TIMER_0;
