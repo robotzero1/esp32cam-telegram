@@ -10,7 +10,6 @@
 *******************************************************************/
 #include <WiFi.h>
 #include <WiFiClientSecure.h>
-#include "esp_camera.h"
 #include "UniversalTelegramBotRZO.h"
 
 // Initialize Wifi connection to the router
